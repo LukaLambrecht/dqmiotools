@@ -12,6 +12,7 @@ More information about this file format can be found on [this twiki page](https:
 The different tools in this repository are grouped in folders as follows:
 - `commissioning`: check available lumisections and size of DQMIO datasets (mostly intended for internal usage with the 2022 nanoDQMIO re-reco campaign).
 - `copydas`: copy single files or entire datasets from DAS to a local location (useful for not too large datasets when remote reading proves to be unstable).
+- `datasets`: practical implementation of reading DQMIO datasets and extracting MEs.
 - `harvesting`: read DQMIO files or datasets and extract MEs to a more convenient format.
 - `jobsubmission`: tools for HTCondor job submission used throughout this repository.
 - `production`: test changes in the per-lumisection DQMIO configuration.
