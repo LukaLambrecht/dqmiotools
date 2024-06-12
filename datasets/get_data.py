@@ -15,7 +15,6 @@ import ROOT
 #from src.proxytools import export_proxy
 #from src.filetools import format_input_files
 #import jobsubmission.condortools as ct
-#CMSSW = os.path.abspath('../../CMSSW_12_4_6')
 #PYTHON_EXE = 'python3'
 # local imports (python2 version)
 sys.path.append(os.path.abspath('../src'))
@@ -24,7 +23,6 @@ from proxytools import export_proxy
 from filetools import format_input_files
 sys.path.append(os.path.abspath('../jobsubmission'))
 import condortools as ct
-CMSSW = os.path.abspath('../../CMSSW_10_6_29')
 PYTHON_EXE = 'python'
 
 
@@ -38,6 +36,7 @@ if __name__=='__main__':
   parser.add_argument('-r', '--redirector', default='root://cms-xrd-global.cern.ch/')
   parser.add_argument('-o', '--outputdir', default='.')
   parser.add_argument('--runmode', default='local', choices=['local', 'condor'])
+  parser.add_argument('--cmssw', default=None)
   parser.add_argument('--test', default=False, action='store_true')
   args = parser.parse_args()
   args.proxy = os.path.abspath(args.proxy) if args.proxy is not None else None
@@ -58,7 +57,7 @@ if __name__=='__main__':
     if args.test: cmd += ' --test'
     cmd += ' --runmode local'
     ct.submitCommandAsCondorJob('cjob_get_data', cmd,
-      cmssw_version=CMSSW, proxy=args.proxy, home='auto')
+      cmssw_version=args.cmssw, proxy=args.proxy, home='auto')
     sys.exit()
 
   # print starting tag (for job completion checking)

@@ -9,7 +9,6 @@ import os
 import argparse
 sys.path.append(os.path.abspath('../jobsubmission'))
 import condortools as ct
-CMSSW = os.path.abspath('../../CMSSW_12_4_6')
 
 
 if __name__=='__main__':
@@ -18,6 +17,7 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser(description='Convert data')
   parser.add_argument('-i', '--inputfiles', required=True, nargs='+')
   parser.add_argument('--runmode', default='local', choices=['local','condor'])
+  parser.add_argument('--cmssw', default=None)
   args = parser.parse_args()
 
   # print arguments
@@ -36,7 +36,7 @@ if __name__=='__main__':
   # run or submit commands
   if args.runmode=='condor':
     ct.submitCommandsAsCondorCluster('cjob_convert_data', cmds,
-      cmssw_version=CMSSW, home='auto')
+      cmssw_version=args.cmssw, home='auto')
   else:
     for cmd in cmds:
       print(cmd)

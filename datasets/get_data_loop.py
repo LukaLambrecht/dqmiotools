@@ -11,12 +11,10 @@ import argparse
 # local imports (python3 version)
 sys.path.append(os.path.abspath('../'))
 import jobsubmission.condortools as ct
-CMSSW = os.path.abspath('../../CMSSW_14_0_4')
 PYTHON_EXE = 'python3'
 # local imports (python2 version)
 #sys.path.append(os.path.abspath('../jobsubmission'))
 #import condortools as ct
-#CMSSW = os.path.abspath('../../CMSSW_10_6_29')
 #PYTHON_EXE = 'python'
 
 
@@ -31,6 +29,7 @@ if __name__=='__main__':
   parser.add_argument('-o', '--outputdir', default='.')
   parser.add_argument('--splitmes', default=False, action='store_true')
   parser.add_argument('--runmode', default='local', choices=['local', 'condor'])
+  parser.add_argument('--cmssw', default=None)
   parser.add_argument('--test', default=False, action='store_true')
   args = parser.parse_args()
   args.proxy = os.path.abspath(args.proxy) if args.proxy is not None else None
@@ -89,7 +88,7 @@ if __name__=='__main__':
   # run or submit commands
   if args.runmode=='condor':
     ct.submitCommandsAsCondorCluster('cjob_get_data', cmds,
-      cmssw_version=CMSSW, proxy=args.proxy, home='auto')
+      cmssw_version=args.cmssw, proxy=args.proxy, home='auto')
   else:
     for cmd in cmds:
       print(cmd)

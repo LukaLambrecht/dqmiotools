@@ -15,14 +15,12 @@ import ROOT
 sys.path.append(os.path.abspath('../'))
 from src.DQMIOReader import DQMIOReader
 import jobsubmission.condortools as ct
-CMSSW = os.path.abspath('../../CMSSW_14_0_4')
 PYTHON_EXE = 'python3'
 # local imports (python2 version)
 #sys.path.append(os.path.abspath('../src'))
 #from DQMIOReader import DQMIOReader
 #sys.path.append(os.path.abspath('../jobsubmission'))
 #import condortools as ct
-#CMSSW = os.path.abspath('../../CMSSW_10_6_29')
 #PYTHON_EXE = 'python'
 
 
@@ -56,6 +54,7 @@ if __name__=='__main__':
   parser.add_argument('-m', '--menames', required=True)
   parser.add_argument('-o', '--outputdir', default='.')
   parser.add_argument('--runmode', default='local', choices=['local', 'condor'])
+  parser.add_argument('--cmssw', default=None)
   parser.add_argument('--test', default=False, action='store_true')
   args = parser.parse_args()
   
@@ -73,7 +72,7 @@ if __name__=='__main__':
     if args.test: cmd += ' --test'
     cmd += ' --runmode local'
     ct.submitCommandAsCondorJob('cjob_get_data', cmd,
-      cmssw_version=CMSSW, home='auto')
+      cmssw_version=args.cmssw, home='auto')
     sys.exit()
 
   # print starting tag (for job completion checking)

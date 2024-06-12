@@ -26,7 +26,7 @@ if __name__=='__main__':
                       help='Redirector to read remote files')
   parser.add_argument('-o', '--outputdir', default=os.path.abspath('.'),
                       help='Local directory where to put the copied file.')
-  parser.add_argument('-m', '--runmode', default='condor',
+  parser.add_argument('-m', '--runmode', choices=['local', 'condor'], default='condor',
                       help='Choose from "condor" or "local";'
                            +' in case of "condor", will submit job to condor cluster;'
                            +' in case of "local", will run interactively in the terminal.')

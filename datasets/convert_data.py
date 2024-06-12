@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 sys.path.append(os.path.abspath('../jobsubmission'))
 import condortools as ct
-CMSSW = os.path.abspath('../../CMSSW_12_4_6')
 
 
 if __name__=='__main__':
@@ -20,6 +19,7 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser(description='Convert data')
   parser.add_argument('-i', '--inputfiles', required=True, nargs='+')
   parser.add_argument('--runmode', default='local', choices=['local','condor'])
+  parser.add_argument('--cmssw', default=None)
   args = parser.parse_args()
 
   # print arguments
@@ -33,7 +33,7 @@ if __name__=='__main__':
     cmd += ' -i {}'.format(' '.join(args.inputfiles))
     cmd += ' --runmode local'
     ct.submitCommandAsCondorJob('cjob_convert_data', cmd,
-      cmssw_version=CMSSW, home='auto')
+      cmssw_version=args.cmssw, home='auto')
     sys.exit()
 
   # print starting tag (for job completion checking)
