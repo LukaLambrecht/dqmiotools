@@ -17,3 +17,12 @@ The different tools in this repository are grouped in folders as follows:
 - `production`: test changes in the per-lumisection DQMIO configuration.
 - `reading`: utility scripts for quick DQMIO file diagnostics (e.g. which MEs, which lumisections, etc.)
 - `src`: actual DQMIO reader class and other tools used throughout this repository.
+
+### Loosely connected tips and tricks
+#### Things to keep in mind when trying to read files from DAS:  
+- You will need a valid grid certificate. Create one using `voms-proxy-init --voms cms`.
+- The scripts in this repository should contain the correct export command. If you still get an error concerning X509\_USER\_PROXY, you can run the command `export X509_USER_PROXY=path` (where `path` should be replaced by the path to where you stored the proxy created in the previous step) and try again.
+
+#### Special instructions for job submission:  
+- You will need a valid grid certificate if accessing remote files via DAS (see above). Copy the proxy to a location that is accessible from the cluster nodes (e.g. somewhere in you home folder) and make sure to pass the path to it as the `proxy` argument to the job submission script.  
+- You might also need to set a CMSSW environment, depending on the configuration of your cluster. At least on lxplus this appears to be needed. You can do this using the `cmssw` argument to the job submission script.
