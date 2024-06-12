@@ -1,0 +1,6 @@
+# ignore compiled python code
+**__pycache__**
+**.pyc
+
+# ignore internal results
+production/testing/confs
