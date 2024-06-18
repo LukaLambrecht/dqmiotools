@@ -20,7 +20,7 @@ if __name__=='__main__':
   # read arguments
   parser = argparse.ArgumentParser(description='Print available monitoring elements')
   parser.add_argument('-d', '--datasetname', required=True,
-                        help='Full name of a file on DAS, or full name of a dataset on DAS,'
+                        help='Full name of a DQMIO file on DAS, or full name of a dataset on DAS,'
                              +' or path to the local file, or path to a local directory.')
   parser.add_argument('-r', '--redirector', default='root://cms-xrd-global.cern.ch/',
                         help='Redirector used to access remote files (ignored for local files).')
@@ -32,6 +32,8 @@ if __name__=='__main__':
                        help='Provide a search key to filter the results;'
                             +' only results matching the searchkey will be shown;'
                             +' may contain unix-style wildcards.')
+  parser.add_argument('--perrun', default=False, action='store_true',
+                        help='Read only per-run information from the DQMIO file(s).')
   parser.add_argument('--number_only', default=False, action='store_true',
                        help='Print number of monitoring elements only;'
                             +' not a full list of their names.')
@@ -63,16 +65,17 @@ if __name__=='__main__':
   print('Initializing DQMIOReader...')
   sys.stdout.flush()
   sys.stderr.flush()
-  reader = DQMIOReader(*filenames)
+  reader = DQMIOReader(*filenames, perrun=args.perrun)
   print('Initialized DQMIOReader with following properties')
-  print('Number of lumisections: {}'.format(len(reader.listLumis())))
+  unittxt = 'run' if args.perrun else 'lumisection'
+  print('Number of {}s: {}'.format(unittxt, len(reader.listLumis())))
   menames = reader.listMEs(namepatterns=searchkey)
   sorting_threshold = 1000
   if len(menames)<sorting_threshold: 
     menames = sorted(menames)
 
   # write output
-  header = 'Number of monitoring elements per lumisection: {}'.format(len(menames))
+  header = 'Number of monitoring elements per {}: {}'.format(unittxt, len(menames))
   if outputfile is None:
     print(header)
     if not number_only:

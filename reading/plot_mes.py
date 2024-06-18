@@ -94,7 +94,7 @@ if __name__=='__main__':
   # read arguments
   parser = argparse.ArgumentParser(description='Plot available monitoring elements')
   parser.add_argument('-d', '--datasetname', required=True,
-                        help='Full name of a file on DAS, or full name of a dataset on DAS,'
+                        help='Full name of a DQMIO file on DAS, or full name of a dataset on DAS,'
                              +' or path to the local file, or path to a local directory.')
   parser.add_argument('-r', '--redirector', default='root://cms-xrd-global.cern.ch/',
                         help='Redirector used to access remote files (ignored for local files).')
@@ -103,6 +103,8 @@ if __name__=='__main__':
   parser.add_argument('-o', '--outputdir', default=None,
                        help='Directory where to store the figures'
                             +' (default: show each figure but do not save)')
+  parser.add_argument('--perrun', default=False, action='store_true',
+                        help='Read only per-run information from the DQMIO file(s).')
   parser.add_argument('--run', default=None,
                         help='Run number for which to make the plot (default: first in file).'
                             +' Use "all" to make a plot for all available runs in the file.')
@@ -146,7 +148,7 @@ if __name__=='__main__':
   print('Initializing DQMIOReader...')
   sys.stdout.flush()
   sys.stderr.flush()
-  reader = DQMIOReader(*filenames)
+  reader = DQMIOReader(*filenames, perrun=args.perrun)
 
   # filter histogram names
   print('Filtering ME names...')
@@ -156,29 +158,38 @@ if __name__=='__main__':
   if nmes==0: raise Exception('ERROR: list of ME names to plot is empty.')
 
   # filter run and lumisection number
-  print('Filtering lumisections...')
+  unittxt = 'run' if args.perrun else 'lumisection'
+  print('Filtering {}s...'.format(unittxt))
   runsls = sorted(reader.listLumis()[:])
   if run is None:
+    # select first available run in file
     runsls = [el for el in runsls if el[0]==runsls[0][0]]
-  elif run=='all': pass
+  elif run=='all':
+    # select all available runs in file
+    pass
   else:
+    # select provided run number
     try:
       run = int(run)
       runsls = [el for el in runsls if el[0]==run]
     except:
       raise Exception('ERROR: unrecognized value for --run: {}'.format(run))
   if ls is None:
+    # select first lumisection
     runsls = [runsls[0]]
-  elif ls=='all': pass
+  elif ls=='all':
+    # select all lumisections
+    pass
   else:
+    # select provided lumisection number
     try:
       ls = int(ls)
       runsls = [el for el in runsls if el[1]==ls]
     except:
       raise Exception('ERROR: unrecognized value for --ls: {}'.format(ls))
   nlumis = len(runsls)
-  print('Number of selected lumisections: {}'.format(nlumis))
-  if nlumis==0: raise Exception('ERROR: list of lumisections to plot is empty.')
+  print('Number of selected {}s: {}'.format(unittxt, nlumis))
+  if nlumis==0: raise Exception('ERROR: list of {}s to plot is empty.'.format(unittxt))
 
   # check number of selected histograms
   nplots = nmes*nlumis

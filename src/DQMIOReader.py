@@ -1,11 +1,20 @@
-# **Class for reading (nano)DQMIO files and extracting histograms**  
+# **Class for reading (nano)DQMIO files and extracting monitoring elements**  
 # 
-# Originally copied from here: https://github.com/cms-DQM/ML4DQM-DC_SharedTools/blob/master/dqmio/moredqmiodata.ipynb
+# Use this reader to open DQMIO (or nanoDQMIO) files,
+# extract meta-information such as a list of available runs, lumisections and MEs,
+# and retrieve the actual MEs for further processing.
+
+# Note: this reader was designed for reading per-lumisection MEs,
+#       but now supports reading per-run MEs as well
+#       (but not simultaneously; the switch between both options is made in the initializer).
 # Note: this code relies on ROOT via the PyROOT bindings;
 #       attempts to remove the ROOT dependency by using uproot are unsuccessful so far,
 #       as DQMIO files seem to have a particular feature not covered by uproot,
 #       see here: https://github.com/scikit-hep/uproot5/issues/38
 #       and also here: https://github.com/scikit-hep/uproot5/issues/1190
+# Note: the DQMIO reader class was originally copied from here:
+#       https://github.com/cms-DQM/ML4DQM-DC_SharedTools/blob/master/dqmio/moredqmiodata.ipynb
+#       (but with many modifications over time).
 
 
 ### imports
@@ -53,9 +62,12 @@ IndexEntry = namedtuple('IndexEntry', ['run', 'lumi', 'type', 'file', 'firstidx'
 # note: the firstidx to lastidx range runs in parallel for multiple types (as they are stored in different trees);
 #       so multiple IndexEntries for the same lumisection (but different type) can have overlapping indices,
 #       but multiple IndexEntries for the same type and file but different lumisections have disjoint indices!
+# note: for per-run monitoring elements (instead of per-lumisection),
+#       the syntax is exactly the same but with the lumisection number set to 0.
 MonitorElement = namedtuple('MonitorElement', ['run', 'lumi', 'name', 'type', 'data'])
 # an instance of MonitorElement represents one monitor element, with all associated information:
-# - the run and lumisection number
+# - the run number
+# - the lumisection number (0 for per-run monitoring elements)
 # - the full name of the monitoring element
 # - the type (e.g. TH1F, TH2F, etc., see function getMETreeName below for all allowed types)
 # - the actual data
@@ -180,6 +192,7 @@ class DQMIOReader:
     def __init__(self,
         *files,
         dummy=True,
+        perrun=False,
         sortindex=False,
         sortmes=False,
         nthreads=1,
@@ -197,6 +210,8 @@ class DQMIOReader:
         #   if stored locally, the filenames should contain the full path.
         #   if stored on the grid, prefix the file path with "root://cms-xrd-global.cern.ch/"
         #   (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookXrootdService).
+        # - perrun: store per-run and ignore per-lumisection monitoring elements
+        #   (default: the other way around)
         # - sortindex: bool whether or not to sort the index 
         #   (by run and lumisection number in ascending order).
         # - sortmes: bool whether or not to sort the ME names (alphabetically).
@@ -215,13 +230,13 @@ class DQMIOReader:
         if verbose: print('Making index...')
         sys.stdout.flush()
         sys.stderr.flush()
-        self.readIndex( sort=sortindex )
+        self.readIndex( perrun=perrun, sort=sortindex )
         if verbose: print('Making list of monitoring elements...')
         sys.stdout.flush()
         sys.stderr.flush()
         self.makeMEList( sort=sortmes )
 
-    def readIndex(self, sort=False):
+    def readIndex(self, perrun=False, sort=False):
         ### read index tables
         # note: for internal use in initializer only, do not call.
         self.index = defaultdict(list)
@@ -242,7 +257,9 @@ class DQMIOReader:
                 run, lumi, metype = idxtree.Run, idxtree.Lumi, idxtree.Type
                 # note: apparently idxtree.Lumi gives 0 for per-run monitoring elements,
                 #       but for now we ignore those and only read per-ls monitoring elements.
-                if lumi == 0: continue
+                # update: now optionally supporting per-run monitoring elements as well.
+                if( not perrun and lumi == 0 ): continue
+                if( perrun and lumi!=0 ): continue
                 # note: the type should usually be an integer between 0 and 11
                 #       (see getMETreeName), but in rare cases, type 1000 is observed;
                 #       not clear what it is exactly, but skip it for now.

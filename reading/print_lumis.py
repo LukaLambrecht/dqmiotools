@@ -19,12 +19,14 @@ if __name__=='__main__':
   # read arguments
   parser = argparse.ArgumentParser(description='Print available lumisections')
   parser.add_argument('-d', '--datasetname', required=True,
-                        help='Full name of a file on DAS, or full name of a dataset on DAS,'
+                        help='Full name of a DQMIO file on DAS, or full name of a dataset on DAS,'
                              +' or path to the local file, or path to a local directory.')
   parser.add_argument('-r', '--redirector', default='root://cms-xrd-global.cern.ch/',
                         help='Redirector used to access remote files (ignored for local files).')
   parser.add_argument('-p', '--proxy', default=None,
                         help='Set the location of a valid proxy (needed for DAS client, ignored for local files).')
+  parser.add_argument('--perrun', default=False, action='store_true',
+                        help='Read only per-run information from the DQMIO file(s).')
   parser.add_argument('--runonly', default=False, action='store_true',
                         help='Print run numbers only, not lumisection numbers.')
   parser.add_argument('--runnb', default=None,
@@ -48,7 +50,7 @@ if __name__=='__main__':
 
   # find files
   print('Retrieving files...')
-  filenames = tools.format_input_files(
+  filenames = format_input_files(
                 datasetname,
                 redirector=redirector)
 
@@ -56,7 +58,7 @@ if __name__=='__main__':
   print('Initializing DQMIOReader...')
   sys.stdout.flush()
   sys.stderr.flush()
-  reader = DQMIOReader(*filenames)
+  reader = DQMIOReader(*filenames, perrun=args.perrun)
   print('Initialized DQMIOReader.')
 
   runsls = sorted(reader.listLumis())

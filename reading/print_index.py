@@ -21,7 +21,7 @@ if __name__=='__main__':
   # read arguments
   parser = argparse.ArgumentParser(description='Print the full index')
   parser.add_argument('-d', '--datasetname', required=True,
-                        help='Full name of a file on DAS, or full name of a dataset on DAS,'
+                        help='Full name of a DQMIO file on DAS, or full name of a dataset on DAS,'
                              +' or path to the local file, or path to a local directory.')
   parser.add_argument('-r', '--redirector', default='root://cms-xrd-global.cern.ch/',
                         help='Redirector used to access remote files (ignored for local files).')
